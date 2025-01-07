@@ -25,5 +25,5 @@ setup(
         "typing-extensions==4.12.2",
         "werkzeug==3.1.3",
         "requests==2.32.3",
-    ]
+    ],
 )

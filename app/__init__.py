@@ -5,9 +5,10 @@ import os
 from app.config import Config
 
 load_dotenv()
-hashids = Hashids(min_length=5, salt=os.environ.get('HASHID_SALT'))
+hashids = Hashids(min_length=5, salt=os.environ.get("HASHID_SALT"))
 
 from app.routes import main
+
 
 def create_app():
     app = Flask(__name__)

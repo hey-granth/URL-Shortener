@@ -24,7 +24,8 @@ def shorten(url):
     return jsonify({"small_url": small_url, "qr_code_url": qr_code_url}), 201
     # 201 is the status code for created. This is used to indicate that the resource has been created successfully.
 
-@main.route('/<small_url>', methods=['GET'])
+
+@main.route("/<small_url>", methods=["GET"])
 def redirect(small_url):
     original_url = get_original_url(small_url)
     # This will return the original URL for the shortened URL

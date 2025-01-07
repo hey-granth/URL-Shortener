@@ -10,6 +10,7 @@ load_dotenv()
 url_store = {}
 hashids = Hashids(min_length=5, salt=os.environ.get("HASHID_SALT"))
 
+
 def shorten_url(url):
     if url in url_store:
         return url_store[url]
@@ -17,6 +18,7 @@ def shorten_url(url):
     small_url = hashids.encode(len(url_store) + 1)
     url_store[small_url] = url
     return small_url
+
 
 def get_original_url(small_url):
     return url_store.get(small_url)
