@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="{{ url_for("static", filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>URL SHORTENER</h1>
+    </header>
+    <main>
+        <div class="container">
+            <form id="urlForm">
+                <input type="url" id="longUrl" placeholder="Enter your long URL" required>
+                <button type="submit">SHORTEN</button>
+            </form>
+            <div id="result"></div>
+            <div id="qrcode"></div>
+        </div>
+    </main>
+    <footer>
+        <h2>Created by Granth Agarwal</h2>
+        <div style="font-size: large">
+            <a href="https://github.com/hey-granth" target="_blank">GitHub</a>
+            <a href="https://twitter.com/heygranth" target="_blank">Twitter</a>
+            <a href="https://linkedin.com/in/granth-agarwal" target="_blank">LinkedIn</a>
+        </div>
+    </footer>
+
+    <script>
+        async function shortenUrl(longUrl) {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/shorten', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: longUrl }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to shorten URL');
+                }
+
+                const data = await response.json();
+                return data.short_url;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
+        }
+
+        async function generateQRCode(small_url) {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/qr-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ small_url: small_url }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate QR code');
+                }
+
+                const data = await response.json();
+                return data.qr_code_url;
+            } catch (error) {
+                console.error('Error:', error);
+                throw error;
+            }
+        }
+
+        document.getElementById('urlForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const longUrl = document.getElementById('longUrl').value;
+            const resultDiv = document.getElementById('result');
+            const qrcodeDiv = document.getElementById('qrcode');
+
+            try {
+                resultDiv.innerHTML = '<p>Shortening URL...</p>';
+                qrcodeDiv.innerHTML = '';
+
+                const shortUrl = await shortenUrl(longUrl);
+
+                resultDiv.innerHTML = `
+                    <p>Shortened URL: <a href="${shortUrl}" target="_blank" style="color: #ffffff;">${shortUrl}</a></p>
+                `;
+
+                resultDiv.innerHTML += '<p>Generating QR Code...</p>';
+
+                const qrCodeUrl = await generateQRCode(shortUrl);
+                qrcodeDiv.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code">`;
+
+                resultDiv.innerHTML = resultDiv.innerHTML.replace('<p>Generating QR Code...</p>', '');
+            } catch (error) {
+                resultDiv.innerHTML = `<p align="center" style="color: #ff6b6b;">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

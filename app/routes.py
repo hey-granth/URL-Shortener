@@ -1,19 +1,23 @@
-from flask import request, Blueprint, jsonify
+from flask import request, Blueprint, jsonify, render_template
 from .shortener import shorten_url, get_original_url
 from .qr_code import generate_qr_code
 
 main = Blueprint("main", __name__)
 
 
-@main.route("/api/shorten/<url>", methods=["POST"])
-def shorten(url):
-    data = request.get_json
+# to shorten the link
+@main.route("/api/shorten", methods=["POST"])
+def shorten():
+    data = request.get_json()
     # get_json() is a method that returns the JSON payload of the request as a Python dictionary. Hence, data basically stores the JSON payload of the request as a Python dictionary.
+
+    if not data or "url" not in data:
+        return jsonify({"error": "Invalid or missing JSON payload"}), 400
 
     original_url = data["url"]
     # This is the original URL that the user wants to shorten
 
-    if not original_url:
+    if not original_url.strip():
         return jsonify({"error": "URL is required"}), 400
 
     small_url = shorten_url(original_url)
@@ -23,6 +27,21 @@ def shorten(url):
 
     return jsonify({"small_url": small_url, "qr_code_url": qr_code_url}), 201
     # 201 is the status code for created. This is used to indicate that the resource has been created successfully.
+
+
+# to generate the QR code
+@main.route('/api/qr-code', methods=['POST'])
+def qr_code():
+    data = request.get_json()
+    print("here")
+
+    if not data or 'small_url' not in data:
+        return jsonify({'error': 'Invalid or missing JSON payload'}), 400
+
+    small_url = data['small_url']
+    qr_code_url = generate_qr_code(small_url)
+
+    return jsonify({'qr_code_url': qr_code_url}), 201
 
 
 @main.route("/<small_url>", methods=["GET"])
@@ -35,3 +54,9 @@ def redirect(small_url):
 
     return jsonify({"original_url": original_url}), 200
     # 200 is the status code for OK. This is used to indicate that the request has succeeded.
+
+
+@main.route('/')
+@main.route('/home')
+def index():
+    return render_template('index.html')
