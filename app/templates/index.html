@@ -45,7 +45,7 @@
                 }
 
                 const data = await response.json();
-                return data.short_url;
+                return data.small_url;  // Access the correct property from the response
             } catch (error) {
                 console.error('Error:', error);
                 throw error;
@@ -86,13 +86,16 @@
 
                 const shortUrl = await shortenUrl(longUrl);
 
+                // Extract just the code portion from the short URL
+                const shortCode = shortUrl.split('/').pop();
+
                 resultDiv.innerHTML = `
                     <p>Shortened URL: <a href="${shortUrl}" target="_blank" style="color: #ffffff;">${shortUrl}</a></p>
                 `;
 
                 resultDiv.innerHTML += '<p>Generating QR Code...</p>';
 
-                const qrCodeUrl = await generateQRCode(shortUrl);
+                const qrCodeUrl = await generateQRCode(shortCode);
                 qrcodeDiv.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code">`;
 
                 resultDiv.innerHTML = resultDiv.innerHTML.replace('<p>Generating QR Code...</p>', '');
